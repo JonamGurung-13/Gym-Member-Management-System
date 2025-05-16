@@ -101,6 +101,7 @@ public class RegularMember extends GymMember {
             } else {
                 this.price = getPlanPrice(plan);
                 this.plan=plan;
+                setAttendance(0);
                 System.out.println("Your plan has successfully upgraded");
                 return "Eligible";
             }

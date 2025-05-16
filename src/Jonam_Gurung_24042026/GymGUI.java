@@ -23,7 +23,7 @@ public class GymGUI {
     JButton activeMemberRegularBtn,deactiveMemberRegularBtn,markAttendanceRegularBtn,upgradeRegularBtn,revertRegularBtn,displayRegularBtn,clearRegularBtn,saveRegularBtn,readRegularBtn;
     JTextArea removalReasonRegularTa;
     JComboBox planRegularCb;
-    
+
     //Premium Member Instance Variables
     JLabel titlePremium,idPremiumLbl,namePremiumLbl,locationPremiumLbl,phonePremiumLbl,emailPremiumLbl,msdPremiumLbl,planPremiumLbl,pricePremiumLbl,paidAmountPremiumLbl,dueAmountPremiumLbl,attendancePremiumLbl,loyaltyPremiumLbl,activePremiumLbl;
     JTextField idPremiumTf, namePremiumTf,locationPremiumTf,phonePremiumTf,emailPremiumTf,msdPremiumTf,planPremiumTf,pricePremiumTf,paidAmountPremiumTf,dueAmountPremiumTf,attendancePremiumTf,loyaltyPremiumTf,activePremiumTf;
@@ -40,6 +40,7 @@ public class GymGUI {
         //Store regular and premium members from the file
         try {
             //This is to store regular member from file
+            //Regular Member
             File fileRegular = new File("RegularMembers.txt");
             if(fileRegular.exists()){
                 Scanner scanRegular = new Scanner(fileRegular);
@@ -74,6 +75,8 @@ public class GymGUI {
                 }
                 scanRegular.close();
             }
+
+            //Premium Member
             File filePremium = new File("PremiumMembers.txt");
             if(filePremium.exists()){
                 Scanner scanPremium = new Scanner(filePremium);
@@ -97,10 +100,11 @@ public class GymGUI {
                     String trainerPremium = line.substring(178,204).strip();
                     PremiumMember pm = new PremiumMember(idPremium,namePremium,locationPremium,phonePremium,emailPremium,genderPremium,dobPremium,msdPremium,trainerPremium);
                     pm.setPaidAmount(Double.parseDouble(line.substring(220,236).strip()));
-                    pm.setDueAmount(Double.parseDouble(line.substring(236,252).strip()));
-                    pm.setActiveStatus(Boolean.parseBoolean(line.substring(252,268)));
-                    pm.setAttendance(Integer.parseInt(line.substring(268,284).strip()));
-                    pm.setLoyaltyPoints(Double.parseDouble(line.substring(284,line.length()-1)));
+                    pm.setDiscountAmount(Double.parseDouble(line.substring(236,252).strip()));
+                    pm.setDueAmount(Double.parseDouble(line.substring(252,273).strip()));
+                    pm.setActiveStatus(Boolean.parseBoolean(line.substring(273,289)));
+                    pm.setAttendance(Integer.parseInt(line.substring(289,305).strip()));
+                    pm.setLoyaltyPoints(Double.parseDouble(line.substring(305,line.length()-1)));
                     gymMembers.add(pm);
                 }
                 scanPremium.close();
@@ -455,8 +459,8 @@ public class GymGUI {
             addBtn.addActionListener(e->{
                 if(memberCb.getSelectedIndex()==0){
                     if(nameTf.getText().isEmpty() || locationTf.getText().isEmpty() || phoneTf.getText().isEmpty() || emailTf.getText().isEmpty() ||
-                    (!maleRbtn.isSelected() && !femaleRbtn.isSelected()) || dobYearCb.getSelectedIndex()==0 || dobMonthCb.getSelectedIndex()==0 || dobDayCb.getSelectedIndex()==0 ||
-                    msdYearCb.getSelectedIndex()==0 || msdMonthCb.getSelectedIndex()==0 || msdDayCb.getSelectedIndex()==0 || referralTf.getText().isEmpty() || paidAmountTf.getText().isEmpty()){
+                            (!maleRbtn.isSelected() && !femaleRbtn.isSelected()) || dobYearCb.getSelectedIndex()==0 || dobMonthCb.getSelectedIndex()==0 || dobDayCb.getSelectedIndex()==0 ||
+                            msdYearCb.getSelectedIndex()==0 || msdMonthCb.getSelectedIndex()==0 || msdDayCb.getSelectedIndex()==0 || referralTf.getText().isEmpty() || paidAmountTf.getText().isEmpty()){
                         JOptionPane.showMessageDialog(newFrame,"Please Fill or Choose All The Options","Error",JOptionPane.ERROR_MESSAGE);
                     }
                     else{
@@ -480,7 +484,7 @@ public class GymGUI {
                                 scan.close();
                             }
                             if(ids.isEmpty()){
-                            id = 1;
+                                id = 1;
                             }
                             else{
                                 id = ids.getLast()+1;
@@ -596,31 +600,38 @@ public class GymGUI {
                                 String phone = phoneTf.getText();
                                 String email = emailTf.getText();
                                 String gender = maleRbtn.isSelected() ? "Male" : "Female";
-                                String dob = dobYearCb.getSelectedItem() + "-" + dobMonthCb.getSelectedItem() + "-" + dobDayCb.getSelectedItem();
+                                String dob = dobYearCb.getSelectedItem() + "-" + dobMonthCb.getSelectedIndex() + "-" + dobDayCb.getSelectedItem();
                                 String memberShipStartDate = msdYearCb.getSelectedItem() + "-" + msdMonthCb.getSelectedIndex() + "-" + msdDayCb.getSelectedItem();
                                 String trainer = trainerCb.getSelectedItem().toString();
+                                PremiumMember pm = new PremiumMember(id, name, location, phone, email, gender, dob, memberShipStartDate, trainer);
                                 double paidAmount = Double.parseDouble(paidAmountTf.getText());
                                 double dueAmount = 0.00;
-                                double change = 0.00 + Double.parseDouble(discountTf.getText());
+                                double change = 0.00;
                                 if (Double.parseDouble(priceTf.getText()) > paidAmount) {
                                     dueAmount = Double.parseDouble(priceTf.getText()) - paidAmount;
+                                    pm.setDiscountAmount(0.00);
                                 } else {
-                                    change = paidAmount - Double.parseDouble(priceTf.getText()) + Double.parseDouble(discountTf.getText());
+                                    pm.setFullPayment(true);
+                                    pm.calculateDiscount();
+                                    change = paidAmount - Double.parseDouble(priceTf.getText()) + pm.getDiscountAmount();
                                 }
-                                PremiumMember pm = new PremiumMember(id, name, location, phone, email, gender, dob, memberShipStartDate, trainer);
-                                pm.setPaidAmount(paidAmount - Double.parseDouble(discountTf.getText()));
+                                pm.setPaidAmount(paidAmount - pm.getDiscountAmount());
                                 pm.setDueAmount(dueAmount);
                                 gymMembers.add(pm);
                                 idTf.setText("P" + id);
                                 FileWriter writer = new FileWriter(file, true);
 
                                 if (newFile) {
-                                    writer.write(String.format("%-5s %-30s %-25s %-15s %-40s %-10s %-20s %-25s %-25s %-15s %-15s %-15s %-15s %-15s %-15s", "ID", "Name", "Location", "Phone", "Email", "Gender", "Date of Birth", "MemberShip Start Date", "Trainer", "Price", "Paid Amount", "Due Amount", "Active Status", "Attendance", "Loyalty Points") + "\n");
+                                    writer.write(String.format("%-5s %-30s %-25s %-15s %-40s %-10s %-20s %-25s %-25s %-15s %-15s %-20s %-15s %-15s %-15s %-15s", "ID", "Name", "Location", "Phone", "Email", "Gender", "Date of Birth", "MemberShip Start Date", "Trainer", "Price", "Paid Amount","Discount Amount", "Due Amount", "Active Status", "Attendance", "Loyalty Points") + "\n");
                                 }
-                                writer.write(String.format("%-5s %-30s %-25s %-15s %-40s %-10s %-20s %-25s %-25s %-15s %-15s %-15s %-15s %-15s %-15s", idTf.getText(), name, location, phone, email, gender, dob, memberShipStartDate, trainer, pm.getPremiumCharge(), pm.getPaidAmount(), dueAmount, pm.getActiveStatus(), pm.getAttendance(), pm.getLoyaltyPoints()) + "\n");
+                                writer.write(String.format("%-5s %-30s %-25s %-15s %-40s %-10s %-20s %-25s %-25s %-15s %-15s %-20s %-15s %-15s %-15s %-15s", idTf.getText(), name, location, phone, email, gender, dob, memberShipStartDate, trainer, pm.getPremiumCharge(), pm.getPaidAmount(),pm.getDiscountAmount(), dueAmount, pm.getActiveStatus(), pm.getAttendance(), pm.getLoyaltyPoints()) + "\n");
                                 writer.close();
-                                JOptionPane.showMessageDialog(newFrame, "Member details has been successfully added to the Gym and Here is your change: " + change, "Info", JOptionPane.INFORMATION_MESSAGE);
-
+                                if(change !=0) {
+                                    JOptionPane.showMessageDialog(newFrame, "Member details has been successfully added to the Gym \nYou got 10% discount for full payment, here is your change:"+change, "Info", JOptionPane.INFORMATION_MESSAGE);
+                                }
+                                else{
+                                    JOptionPane.showMessageDialog(newFrame, "Member details has been successfully added to the Gym and Now you have: " +dueAmount + " due amount.", "Info", JOptionPane.INFORMATION_MESSAGE);
+                                }
                             }
                             else{
                                 JOptionPane.showMessageDialog(newFrame,"Please enter proper number","Error",JOptionPane.ERROR_MESSAGE);
@@ -692,8 +703,8 @@ public class GymGUI {
             loyaltyRegularTf.setEditable(false);
             activeRegularTf = new JTextField(15);
             activeRegularTf.setEditable(false);
-            
-            planRegularCb = new JComboBox(new String[]{"Basic","Standard","Deluxe"});
+
+            planRegularCb = new JComboBox<>(new String[]{"Basic","Standard","Deluxe"});
             planRegularCb.setEnabled(false);
 
             activeMemberRegularBtn = new JButton("Active Membership");
@@ -880,7 +891,7 @@ public class GymGUI {
                     priceRegularTf.setText("18500");
                 }
             });
-            
+
             //Buttons Actions
             //Activate Regular Membership
             activeMemberRegularBtn.addActionListener(e-> {
@@ -1052,6 +1063,7 @@ public class GymGUI {
                                             loyaltyRegularTf.setText(String.valueOf(rm.getLoyaltyPoints()));
                                             activeRegularTf.setText(String.valueOf(rm.getActiveStatus()));
                                             planRegularCb.setSelectedIndex(0);
+                                            removalReasonRegularTa.setText("");
 
                                             JOptionPane.showMessageDialog(regularFrame, "You membership has been reverted", "Info", JOptionPane.INFORMATION_MESSAGE);
                                             break;
@@ -1110,7 +1122,7 @@ public class GymGUI {
                                                             rm.setPrice(rm.getPlanPrice(planRegularCb.getSelectedItem().toString()));
                                                             rm.setAttendance(0);
                                                             rm.upgradePlan(upgrade);
-                                                            attendanceRegularTf.setText(String.valueOf(rm.getAttendance()));
+                                                            attendanceRegularTf.setText("0");
                                                             planRegularCb.setEnabled(false);
                                                             paidAmountRegularTf.setEditable(false);
                                                             paidAmountRegularTf.setText("");
@@ -1177,22 +1189,22 @@ public class GymGUI {
                                 regularMemberList.add(details);
                             }
                         }
-                            String[][] regularMemberDetails = regularMemberList.toArray(new String[regularMemberList.size()][]);
-                            String[] columns = {"ID", "Name", "Location", "Phone", "Email", "Gender", "Dob", "Membership Start Date", "Referral Source"};
+                        String[][] regularMemberDetails = regularMemberList.toArray(new String[regularMemberList.size()][]);
+                        String[] columns = {"ID", "Name", "Location", "Phone", "Email", "Gender", "Dob", "Membership Start Date", "Referral Source"};
 
-                            JTable regularTable = new JTable(regularMemberDetails, columns);
-                            JScrollPane regularTableScroll = new JScrollPane(regularTable);
-                            JFrame regularTableFrame = new JFrame("Table");
-                            regularTableFrame.setSize(1100, 500);
-                            regularTableFrame.setLocationRelativeTo(null);
-                            regularTableFrame.add(regularTableScroll);
-                            regularTableFrame.setVisible(true);
+                        JTable regularTable = new JTable(regularMemberDetails, columns);
+                        JScrollPane regularTableScroll = new JScrollPane(regularTable);
+                        JFrame regularTableFrame = new JFrame("Table");
+                        regularTableFrame.setSize(1100, 500);
+                        regularTableFrame.setLocationRelativeTo(null);
+                        regularTableFrame.add(regularTableScroll);
+                        regularTableFrame.setVisible(true);
 
 
                     }
                     else{
-                            JOptionPane.showMessageDialog(regularFrame, "Currently there are zero regular members", "Error", JOptionPane.ERROR_MESSAGE);
-                        }
+                        JOptionPane.showMessageDialog(regularFrame, "Currently there are zero regular members", "Info", JOptionPane.INFORMATION_MESSAGE);
+                    }
                 }
                 catch (NumberFormatException ex){
                     JOptionPane.showMessageDialog(regularFrame,"Invalid Input, Please Fill Proper Input","Error",JOptionPane.ERROR_MESSAGE);
@@ -1287,60 +1299,60 @@ public class GymGUI {
 
             //Read From Regular Member File
             readRegularBtn.addActionListener(e->{
-            try{
-                File file = new File("RegularMembers.txt");
-                if(file.exists()){
-                    Scanner scanRegular = new Scanner(file);
-                    boolean ignoreFirst = true;
-                    ArrayList<String[]>regularMemberList = new ArrayList<>();
-                    while(scanRegular.hasNextLine()){
-                        if(ignoreFirst){
-                            scanRegular.nextLine();
-                            ignoreFirst = false;
-                            continue;
+                try{
+                    File file = new File("RegularMembers.txt");
+                    if(file.exists()){
+                        Scanner scanRegular = new Scanner(file);
+                        boolean ignoreFirst = true;
+                        ArrayList<String[]>regularMemberList = new ArrayList<>();
+                        while(scanRegular.hasNextLine()){
+                            if(ignoreFirst){
+                                scanRegular.nextLine();
+                                ignoreFirst = false;
+                                continue;
+                            }
+                            String line = scanRegular.nextLine();
+                            String [] details = new String[14];
+                            details[0] = line.substring(0,6).strip();
+                            details[1] = line.substring(6,37).strip();
+                            details[2] = line.substring(37,63).strip();
+                            details[3] = line.substring(63,79).strip();
+                            details[4] = line.substring(79,120).strip();
+                            details[5] = line.substring(120,131).strip();
+                            details[6] = line.substring(131,152).strip();
+                            details[7] = line.substring(152,178).strip();
+                            details[8] = line.substring(178,204).strip();
+                            details[9] = line.substring(204,215).strip();
+                            details[10] = line.substring(215,231).strip();
+                            details[11] = line.substring(231,247).strip();
+                            details[12] = line.substring(247,263).strip();
+                            details[13] = line.substring(263,line.length()-1).strip();
+                            regularMemberList.add(details);
                         }
-                        String line = scanRegular.nextLine();
-                        String [] details = new String[14];
-                        details[0] = line.substring(0,6).strip();
-                        details[1] = line.substring(6,37).strip();
-                        details[2] = line.substring(37,63).strip();
-                        details[3] = line.substring(63,79).strip();
-                        details[4] = line.substring(79,120).strip();
-                        details[5] = line.substring(120,131).strip();
-                        details[6] = line.substring(131,152).strip();
-                        details[7] = line.substring(152,178).strip();
-                        details[8] = line.substring(178,204).strip();
-                        details[9] = line.substring(204,215).strip();
-                        details[10] = line.substring(215,231).strip();
-                        details[11] = line.substring(231,247).strip();
-                        details[12] = line.substring(247,263).strip();
-                        details[13] = line.substring(263,line.length()-1).strip();
-                        regularMemberList.add(details);
+                        scanRegular.close();
+                        String[][] regularMemberDetail = regularMemberList.toArray(new String[regularMemberList.size()][]);
+                        String [] columns = {"ID","Name","Location","Phone","Email","Gender","Dob","Membership Start Date","Referral Source","Plan","Price","Active Status","Attendance","Loyalty Points"};
+                        JTable regularTable = new JTable(regularMemberDetail,columns);
+                        JScrollPane regularTableScroll = new JScrollPane(regularTable);
+                        JFrame regularTableFrame = new JFrame("Table");
+                        regularTableFrame.setSize(1200,500);
+                        regularTableFrame.setLocationRelativeTo(null);
+                        regularTableFrame.add(regularTableScroll);
+                        regularTableFrame.setVisible(true);
                     }
-                    scanRegular.close();
-                    String[][] regularMemberDetail = regularMemberList.toArray(new String[regularMemberList.size()][]);
-                    String [] columns = {"ID","Name","Location","Phone","Email","Gender","Dob","Membership Start Date","Referral Source","Plan","Price","Active Status","Attendance","Loyalty Points"};
-                    JTable regularTable = new JTable(regularMemberDetail,columns);
-                    JScrollPane regularTableScroll = new JScrollPane(regularTable);
-                    JFrame regularTableFrame = new JFrame("Table");
-                    regularTableFrame.setSize(1200,500);
-                    regularTableFrame.setLocationRelativeTo(null);
-                    regularTableFrame.add(regularTableScroll);
-                    regularTableFrame.setVisible(true);
+                    else{
+                        JOptionPane.showMessageDialog(regularFrame,"Currently, there are zero regular members");
+                    }
+                } catch (NumberFormatException ex){
+                    JOptionPane.showMessageDialog(regularFrame,"Invalid Input, Please Fill Proper Input","Error",JOptionPane.ERROR_MESSAGE);
                 }
-                else{
-                    JOptionPane.showMessageDialog(regularFrame,"Currently, there are zero regular members");
+                catch(IOException io){
+                    JOptionPane.showMessageDialog(regularFrame,"File Not Found","Error",JOptionPane.ERROR_MESSAGE);
                 }
-            } catch (NumberFormatException ex){
-                JOptionPane.showMessageDialog(regularFrame,"Invalid Input, Please Fill Proper Input","Error",JOptionPane.ERROR_MESSAGE);
-            }
-            catch(IOException io){
-                JOptionPane.showMessageDialog(regularFrame,"File Not Found","Error",JOptionPane.ERROR_MESSAGE);
-            }
-            catch (Exception ex) {
-                JOptionPane.showMessageDialog(regularFrame,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
-            }
-        });
+                catch (Exception ex) {
+                    JOptionPane.showMessageDialog(regularFrame,ex.getMessage(),"Error",JOptionPane.ERROR_MESSAGE);
+                }
+            });
 
         }
 
@@ -1842,7 +1854,7 @@ public class GymGUI {
 
                     }
                     else{
-                        JOptionPane.showMessageDialog(premiumFrame, "Currently there are zero premium members", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(premiumFrame, "Currently there are zero premium members", "Info", JOptionPane.INFORMATION_MESSAGE);
                     }
                 } catch (NumberFormatException ex){
                     JOptionPane.showMessageDialog(premiumFrame,"Invalid Input, Please Fill Proper Input","Error",JOptionPane.ERROR_MESSAGE);
@@ -1904,7 +1916,7 @@ public class GymGUI {
                                             lines.add(scanForWriter.nextLine());
                                         }
                                         scanForWriter.close();
-                                        lines.set(count, String.format("%-5s %-30s %-25s %-15s %-40s %-10s %-20s %-25s %-25s %-15s %-15s %-15s %-15s %-15s %-15s", "P" + pm.getId(), pm.getName(), pm.getLocation(), pm.getPhone(), pm.getEmail(), pm.getGender(), pm.getDob(), pm.getMembershipStartDate(), pm.getPersonalTrainer(), pm.getPremiumCharge(), pm.getPaidAmount(), pm.getDueAmount(), pm.getActiveStatus(), pm.getAttendance(), pm.getLoyaltyPoints()));
+                                        lines.set(count, String.format("%-5s %-30s %-25s %-15s %-40s %-10s %-20s %-25s %-25s %-15s %-15s %-20s %-15s %-15s %-15s %-15s", "P" + pm.getId(), pm.getName(), pm.getLocation(), pm.getPhone(), pm.getEmail(), pm.getGender(), pm.getDob(), pm.getMembershipStartDate(), pm.getPersonalTrainer(), pm.getPremiumCharge(), pm.getPaidAmount(), pm.getDiscountAmount(), pm.getDueAmount(), pm.getActiveStatus(), pm.getAttendance(), pm.getLoyaltyPoints()));
                                         FileWriter writer = new FileWriter("PremiumMembers.txt");
                                         for (String line : lines) {
                                             writer.write(line + "\n");
@@ -1949,7 +1961,7 @@ public class GymGUI {
                                 continue;
                             }
                             String line = scanPremium.nextLine();
-                            String [] details = new String[15];
+                            String [] details = new String[16];
                             details[0] = line.substring(0,6).strip();
                             details[1] = line.substring(6,37).strip();
                             details[2] = line.substring(37,63).strip();
@@ -1962,14 +1974,15 @@ public class GymGUI {
                             details[9] = line.substring(204,220).strip();
                             details[10] = line.substring(220,236).strip();
                             details[11] = line.substring(236,252).strip();
-                            details[12] = line.substring(252,268).strip();
-                            details[13] = line.substring(268,284).strip();
-                            details[14] = line.substring(284,line.length()-1).strip();
+                            details[12] = line.substring(252,273).strip();
+                            details[13] = line.substring(273,289).strip();
+                            details[14] = line.substring(289,305).strip();
+                            details[15] = line.substring(305,line.length()-1).strip();
                             premiumMemberList.add(details);
                         }
                         scanPremium.close();
                         String[][] premiumMemberDetail = premiumMemberList.toArray(new String[premiumMemberList.size()][]);
-                        String [] columns = {"ID","Name","Location","Phone","Email","Gender","Dob","Membership Start Date","Personal Trainer","Price","Paid Amount","Due Amount","Active Status","Attendance","Loyalty Points"};
+                        String [] columns = {"ID","Name","Location","Phone","Email","Gender","Dob","Membership Start Date","Personal Trainer","Price","Paid Amount","Discount Amount","Due Amount","Active Status","Attendance","Loyalty Points"};
                         JTable premiumTable = new JTable(premiumMemberDetail,columns);
                         JScrollPane premiumTableScroll = new JScrollPane(premiumTable);
                         JFrame premiumTableFrame = new JFrame("Table");

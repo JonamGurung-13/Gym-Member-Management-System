@@ -5,10 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="32c9175b-fe1e-4cb6-95ba-7d51d8f5b431" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Code.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/PremiumMembers.txt" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/RegularMembers.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Jonam_Gurung_24042026/GymGUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Jonam_Gurung_24042026/GymGUI.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Jonam_Gurung_24042026/RegularMember.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Jonam_Gurung_24042026/RegularMember.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,12 +24,13 @@
     </option>
   </component>
   <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3
 }</component>
   <component name="ProjectId" id="2wiY8PYdDB2GRaZ3cy42yaXrMP0" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -44,8 +46,9 @@
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "F:/Codes/Gym Member Management System/Code",
-    "onboarding.tips.debug.path": "E:/Programming/Assignments/1st Year Coursework - Programming/Final Milestone/Code/src/Main.java"
+    "last_opened_file_path": "F:/Git Hub Repos/Gym-Member-Management-System",
+    "onboarding.tips.debug.path": "E:/Programming/Assignments/1st Year Coursework - Programming/Final Milestone/Code/src/Main.java",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings"
   }
 }]]></component>
   <component name="RecentsManager">
